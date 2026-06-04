@@ -3,8 +3,8 @@ import { authAPI } from '../utils/api';
 
 export default function LoginForm({ onSuccess, onToggleForm }) {
   const [formData, setFormData] = useState({
-    email: 'admin@test.com',
-    password: 'admin123'
+    email: 'admin@edu.com',
+    password: 'admin1234'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
