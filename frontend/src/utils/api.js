@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -18,27 +18,33 @@ api.interceptors.request.use((config) => {
 });
 
 export const authAPI = {
-  register: (nome, email, senha) =>
-    api.post('/auth/register', { nome, email, senha }),
-  login: (email, senha) =>
-    api.post('/auth/login', { email, senha })
+  register: (name, email, password) =>
+    api.post('/auth/register', { name, email, password }),
+  login: (email, password) =>
+    api.post('/auth/login', { email, password })
 };
 
 export const categoriesAPI = {
   getAll: () => api.get('/categories'),
-  create: (nome, tipo) =>
-    api.post('/categories', { nome, tipo }),
+  create: (name, code, type) =>
+    api.post('/categories', { name, code, type }),
   delete: (id) =>
     api.delete(`/categories/${id}`)
 };
 
 export const transactionsAPI = {
-  getAll: (data = null) =>
-    api.get('/transactions', { params: { data } }),
-  create: (categoryId, valor, descricao, data) =>
-    api.post('/transactions', { categoryId, valor, descricao, data }),
+  getAll: (startDate = null, endDate = null) => {
+    const params = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return api.get('/transactions', { params });
+  },
+  create: (category_id, amount, type, description, date) =>
+    api.post('/transactions', { category_id, amount, type, description, date }),
   delete: (id) =>
-    api.delete(`/transactions/${id}`)
+    api.delete(`/transactions/${id}`),
+  getSummary: (date) =>
+    api.get(`/transactions/summary/${date}`)
 };
 
 export default api;

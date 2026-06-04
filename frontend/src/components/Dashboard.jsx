@@ -19,7 +19,7 @@ export default function Dashboard({ usuario, onLogout }) {
   const carregarTransacoes = async () => {
     try {
       setLoading(true);
-      const response = await transactionsAPI.getAll(dataSelecionada);
+      const response = await transactionsAPI.getAll(dataSelecionada, dataSelecionada);
       setTransacoes(response.data);
     } catch (erro) {
       console.error('Erro ao carregar transações:', erro);
@@ -57,10 +57,10 @@ export default function Dashboard({ usuario, onLogout }) {
   };
 
   const totals = transacoes.reduce((acc, t) => {
-    if (t.Category.tipo === 'entrada') {
-      acc.entrada += parseFloat(t.valor);
+    if (t.type === 'entrada') {
+      acc.entrada += parseFloat(t.amount);
     } else {
-      acc.saida += parseFloat(t.valor);
+      acc.saida += parseFloat(t.amount);
     }
     return acc;
   }, { entrada: 0, saida: 0 });
@@ -74,7 +74,7 @@ export default function Dashboard({ usuario, onLogout }) {
           <div style={styles.headerContent}>
             <h1>💰 Controle de Caixa</h1>
             <div style={styles.userSection}>
-              <span>Bem-vindo, {usuario.nome}!</span>
+              <span>Bem-vindo, {usuario.name}!</span>
               <button onClick={onLogout} style={styles.logoutBtn}>Sair</button>
             </div>
           </div>

@@ -3,11 +3,12 @@ import { transactionsAPI } from '../utils/api';
 
 export default function TransactionForm({ categorias, onTransacaoAdicionada }) {
   const [formData, setFormData] = useState({
-    categoryId: '',
-    valor: '',
-    descricao: '',
-    data: new Date().toISOString().split('T')[0]
+    category_id: '',
+    amount: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0]
   });
+  const [type, setType] = useState('saída');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function TransactionForm({ categorias, onTransacaoAdicionada }) {
     e.preventDefault();
     setError('');
 
-    if (!formData.categoryId || !formData.valor) {
+    if (!formData.category_id || !formData.amount) {
       setError('Categoria e valor são obrigatórios');
       return;
     }
@@ -27,17 +28,18 @@ export default function TransactionForm({ categorias, onTransacaoAdicionada }) {
     setLoading(true);
     try {
       await transactionsAPI.create(
-        formData.categoryId,
-        formData.valor,
-        formData.descricao,
-        formData.data
+        formData.category_id,
+        formData.amount,
+        type,
+        formData.description,
+        formData.date
       );
 
       setFormData({
-        categoryId: '',
-        valor: '',
-        descricao: '',
-        data: new Date().toISOString().split('T')[0]
+        category_id: '',
+        amount: '',
+        description: '',
+        date: new Date().toISOString().split('T')[0]
       });
 
       onTransacaoAdicionada();
@@ -48,6 +50,9 @@ export default function TransactionForm({ categorias, onTransacaoAdicionada }) {
     }
   };
 
+  // Filtrar categorias pelo tipo selecionado
+  const categoriasFilteradas = categorias.filter(c => c.type === type);
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>➕ Registrar Transação</h2>
@@ -57,53 +62,69 @@ export default function TransactionForm({ categorias, onTransacaoAdicionada }) {
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
-            <label>Categoria</label>
+            <label>Tipo</label>
             <select
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-              required
+              value={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                setFormData({ ...formData, category_id: '' });
+              }}
             >
-              <option value="">Selecione uma categoria</option>
-              {categorias.map(cat => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nome} ({cat.tipo === 'entrada' ? '↓ Entrada' : '↑ Saída'})
-                </option>
-              ))}
+              <option value="entrada">Entrada</option>
+              <option value="saída">Saída</option>
             </select>
           </div>
 
           <div className="form-group">
+            <label>Categoria</label>
+            <select
+              name="category_id"
+              value={formData.category_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecione uma categoria</option>
+              {categoriasFilteradas.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} (Código: {cat.code})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
             <label>Valor (R$)</label>
             <input
               type="number"
-              name="valor"
-              value={formData.valor}
+              name="amount"
+              value={formData.amount}
               onChange={handleChange}
               step="0.01"
               min="0"
               required
             />
           </div>
-        </div>
 
-        <div className="form-row">
           <div className="form-group">
             <label>Data</label>
             <input
               type="date"
-              name="data"
-              value={formData.data}
+              name="date"
+              value={formData.date}
               onChange={handleChange}
             />
           </div>
+        </div>
 
+        <div className="form-row">
           <div className="form-group">
             <label>Descrição (opcional)</label>
             <input
               type="text"
-              name="descricao"
-              value={formData.descricao}
+              name="description"
+              value={formData.description}
               onChange={handleChange}
               placeholder="ex: Venda de produtos..."
             />

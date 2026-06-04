@@ -1,0 +1,104 @@
+// Este arquivo contém exemplos de requisições HTTP para testar a API
+
+// 1. REGISTRAR NOVO USUÁRIO
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+###
+
+// 2. LOGIN
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+###
+
+// COPIE O TOKEN DA RESPOSTA E USE NAS REQUISIÇÕES ABAIXO
+// Substitua SEU_TOKEN pelo token retornado no login
+
+// 3. CRIAR CATEGORIA (ENTRADA)
+POST http://localhost:5000/api/categories
+Authorization: Bearer SEU_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Vendas",
+  "code": 9500,
+  "type": "entrada"
+}
+
+###
+
+// 4. CRIAR CATEGORIA (SAÍDA)
+POST http://localhost:5000/api/categories
+Authorization: Bearer SEU_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Despesas",
+  "code": 9501,
+  "type": "saída"
+}
+
+###
+
+// 5. LISTAR CATEGORIAS
+GET http://localhost:5000/api/categories
+Authorization: Bearer SEU_TOKEN
+
+###
+
+// 6. CRIAR TRANSAÇÃO
+POST http://localhost:5000/api/transactions
+Authorization: Bearer SEU_TOKEN
+Content-Type: application/json
+
+{
+  "category_id": 1,
+  "amount": 150.50,
+  "type": "entrada",
+  "description": "Venda de produto",
+  "date": "2024-06-04"
+}
+
+###
+
+// 7. LISTAR TRANSAÇÕES
+GET http://localhost:5000/api/transactions
+Authorization: Bearer SEU_TOKEN
+
+###
+
+// 8. LISTAR TRANSAÇÕES POR DATA
+GET http://localhost:5000/api/transactions?startDate=2024-06-01&endDate=2024-06-30
+Authorization: Bearer SEU_TOKEN
+
+###
+
+// 9. OBTER RESUMO DO DIA
+GET http://localhost:5000/api/transactions/summary/2024-06-04
+Authorization: Bearer SEU_TOKEN
+
+###
+
+// 10. DELETAR TRANSAÇÃO
+DELETE http://localhost:5000/api/transactions/1
+Authorization: Bearer SEU_TOKEN
+
+###
+
+// DICAS PARA USAR NO VS CODE:
+// 1. Instale a extensão "REST Client"
+// 2. Abra este arquivo
+// 3. Clique em "Send Request" acima de cada requisição
+// 4. Os resultados aparecerão em uma aba ao lado

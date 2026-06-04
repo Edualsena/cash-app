@@ -2,24 +2,38 @@ import { useState } from 'react';
 import { categoriesAPI } from '../utils/api';
 
 export default function CategoryManager({ categorias, onClose, onCategoriaAdicionada }) {
-  const [nome, setNome] = useState('');
-  const [tipo, setTipo] = useState('saida');
+  const [formData, setFormData] = useState({
+    name: '',
+    code: '',
+    type: 'saída'
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!nome.trim()) {
+    if (!formData.name.trim()) {
       setError('Nome da categoria é obrigatório');
+      return;
+    }
+
+    const code = parseInt(formData.code, 10);
+    if (!formData.code || isNaN(code) || code < 9500 || code > 9599) {
+      setError('Código deve ser um número entre 9500 e 9599');
       return;
     }
 
     setLoading(true);
     try {
-      await categoriesAPI.create(nome, tipo);
-      setNome('');
+      await categoriesAPI.create(formData.name, code, formData.type);
+      setFormData({ name: '', code: '', type: 'saída' });
       onCategoriaAdicionada();
     } catch (erro) {
       setError(erro.response?.data?.error || 'Erro ao criar categoria');
@@ -39,8 +53,8 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
     }
   };
 
-  const categoriasSaida = categorias.filter(c => c.tipo === 'saida');
-  const categoriasEntrada = categorias.filter(c => c.tipo === 'entrada');
+  const categoriasSaida = categorias.filter(c => c.type === 'saída');
+  const categoriasEntrada = categorias.filter(c => c.type === 'entrada');
 
   return (
     <div style={styles.overlay} onClick={onClose}>
@@ -54,16 +68,29 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
             <label>Nome da Categoria</label>
             <input
               type="text"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               placeholder="ex: Aluguel, Internet, Venda..."
             />
           </div>
 
           <div className="form-group">
+            <label>Código (9500-9599)</label>
+            <select name="code" value={formData.code} onChange={handleChange} required>
+              <option value="">Selecione um código</option>
+              {Array.from({ length: 100 }, (_, i) => 9500 + i).map(code => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
             <label>Tipo</label>
-            <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              <option value="saida">Saída</option>
+            <select name="type" value={formData.type} onChange={handleChange}>
+              <option value="saída">Saída</option>
               <option value="entrada">Entrada</option>
             </select>
           </div>
@@ -82,7 +109,7 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
           ) : (
             categoriasSaida.map(cat => (
               <div key={cat.id} style={styles.categoryItem}>
-                <span>{cat.nome}</span>
+                <span>{cat.name} <small style={{ color: '#666' }}>(Código: {cat.code})</small></span>
                 <button
                   onClick={() => handleDelete(cat.id)}
                   style={styles.deleteBtn}
@@ -102,7 +129,7 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
           ) : (
             categoriasEntrada.map(cat => (
               <div key={cat.id} style={styles.categoryItem}>
-                <span>{cat.nome}</span>
+                <span>{cat.name} <small style={{ color: '#666' }}>(Código: {cat.code})</small></span>
                 <button
                   onClick={() => handleDelete(cat.id)}
                   style={styles.deleteBtn}

@@ -4,9 +4,9 @@ import { authAPI } from '../utils/api';
 export default function LoginForm({ onSuccess, onToggleForm }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    nome: '',
+    name: '',
     email: '',
-    senha: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,9 +21,9 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
     setLoading(true);
 
     try {
-      const response = await authAPI.login(formData.email, formData.senha);
+      const response = await authAPI.login(formData.email, formData.password);
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('usuario', JSON.stringify(response.data.usuario));
+      localStorage.setItem('usuario', JSON.stringify(response.data.user));
       onSuccess();
     } catch (err) {
       setError(err.response?.data?.error || 'Erro ao fazer login');
@@ -38,11 +38,12 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
     setLoading(true);
 
     try {
-      await authAPI.register(formData.nome, formData.email, formData.senha);
+      const response = await authAPI.register(formData.name, formData.email, formData.password);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('usuario', JSON.stringify(response.data.user));
       setError('');
-      setFormData({ nome: '', email: '', senha: '' });
-      setIsLogin(true);
-      alert('Registrado com sucesso! Faça login agora.');
+      setFormData({ name: '', email: '', password: '' });
+      onSuccess();
     } catch (err) {
       setError(err.response?.data?.error || 'Erro ao registrar');
     } finally {
@@ -63,8 +64,8 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
               <label>Nome</label>
               <input
                 type="text"
-                name="nome"
-                value={formData.nome}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required={!isLogin}
               />
@@ -86,8 +87,8 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
             <label>Senha</label>
             <input
               type="password"
-              name="senha"
-              value={formData.senha}
+              name="password"
+              value={formData.password}
               onChange={handleChange}
               required
             />
@@ -102,7 +103,7 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
           onClick={() => {
             setIsLogin(!isLogin);
             setError('');
-            setFormData({ nome: '', email: '', senha: '' });
+            setFormData({ name: '', email: '', password: '' });
           }}
           style={styles.toggleBtn}
         >

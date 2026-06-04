@@ -15,6 +15,7 @@ export default function TransactionTable({ transacoes, onDelete }) {
           <tr>
             <th>Hora</th>
             <th>Categoria</th>
+            <th>Código</th>
             <th>Tipo</th>
             <th>Valor</th>
             <th>Descrição</th>
@@ -24,23 +25,24 @@ export default function TransactionTable({ transacoes, onDelete }) {
         <tbody>
           {transacoes.map(transacao => (
             <tr key={transacao.id}>
-              <td>{new Date(transacao.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-              <td>{transacao.Category.nome}</td>
+              <td>{new Date(transacao.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+              <td>{transacao.category_name}</td>
+              <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{transacao.category_code}</td>
               <td>
                 <span style={{
-                  color: transacao.Category.tipo === 'entrada' ? '#28a745' : '#dc3545',
+                  color: transacao.type === 'entrada' ? '#28a745' : '#dc3545',
                   fontWeight: 'bold'
                 }}>
-                  {transacao.Category.tipo === 'entrada' ? '↓ Entrada' : '↑ Saída'}
+                  {transacao.type === 'entrada' ? '↓ Entrada' : '↑ Saída'}
                 </span>
               </td>
               <td style={{
                 fontWeight: 'bold',
-                color: transacao.Category.tipo === 'entrada' ? '#28a745' : '#dc3545'
+                color: transacao.type === 'entrada' ? '#28a745' : '#dc3545'
               }}>
-                R$ {parseFloat(transacao.valor).toFixed(2)}
+                R$ {parseFloat(transacao.amount).toFixed(2)}
               </td>
-              <td>{transacao.descricao || '-'}</td>
+              <td>{transacao.description || '-'}</td>
               <td>
                 <button
                   onClick={() => onDelete(transacao.id)}
