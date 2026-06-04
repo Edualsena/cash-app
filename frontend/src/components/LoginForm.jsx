@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { authAPI } from '../utils/api';
 
 export default function LoginForm({ onSuccess, onToggleForm }) {
-  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
+    email: 'admin@test.com',
+    password: 'admin123'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,25 +30,6 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await authAPI.register(formData.name, formData.email, formData.password);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('usuario', JSON.stringify(response.data.user));
-      setError('');
-      setFormData({ name: '', email: '', password: '' });
-      onSuccess();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao registrar');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -58,20 +37,13 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <form onSubmit={isLogin ? handleLogin : handleRegister}>
-          {!isLogin && (
-            <div className="form-group">
-              <label>Nome</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required={!isLogin}
-              />
-            </div>
-          )}
+        <div style={styles.testInfo}>
+          <strong>🧪 Credenciais de Teste:</strong>
+          <p>Email: <code>admin@test.com</code></p>
+          <p>Senha: <code>admin123</code></p>
+        </div>
 
+        <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -95,20 +67,9 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
           </div>
 
           <button type="submit" disabled={loading} style={styles.submitBtn}>
-            {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Registrar'}
+            {loading ? 'Carregando...' : 'Entrar'}
           </button>
         </form>
-
-        <button
-          onClick={() => {
-            setIsLogin(!isLogin);
-            setError('');
-            setFormData({ name: '', email: '', password: '' });
-          }}
-          style={styles.toggleBtn}
-        >
-          {isLogin ? 'Criar conta' : 'Já tem conta? Entrar'}
-        </button>
       </div>
     </div>
   );
@@ -143,6 +104,15 @@ const styles = {
     borderRadius: '4px',
     marginBottom: '20px',
     border: '1px solid #f5c6cb'
+  },
+  testInfo: {
+    backgroundColor: '#e3f2fd',
+    color: '#1976d2',
+    padding: '15px',
+    borderRadius: '4px',
+    marginBottom: '20px',
+    border: '1px solid #90caf9',
+    fontSize: '13px'
   },
   submitBtn: {
     width: '100%',

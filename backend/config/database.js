@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import bcrypt from 'bcryptjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dbPath = `${__dirname}/../data/cash-app.db`;
@@ -24,7 +25,21 @@ function initializeDatabase() {
       password TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `, () => {
+    // Criar usuário admin de teste se não existir
+    db.get('SELECT * FROM users WHERE email = ?', ['admin@test.com'], (err, row) => {
+      if (!row) {
+        const hashedPassword = bcrypt.hashSync('admin123', 10);
+        db.run(
+          'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+          ['Admin Teste', 'admin@test.com', hashedPassword],
+          () => {
+            console.log('Usuário admin criado para teste ✅');
+          }
+        );
+      }
+    });
+  });
 
   // Tabela de categorias
   db.run(`
