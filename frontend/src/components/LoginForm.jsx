@@ -37,11 +37,11 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <div style={styles.testInfo}>
+        {/* <div style={styles.testInfo}>
           <strong>🧪 Credenciais de Teste:</strong>
           <p>Email: <code>admin@test.com</code></p>
           <p>Senha: <code>admin123</code></p>
-        </div>
+        </div> */}
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
