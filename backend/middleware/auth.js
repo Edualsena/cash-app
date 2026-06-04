@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_super_segura_123!@#';
+const JWT_SECRET = process.env.JWT_SECRET || 'cash-app@sena1234#';
 
 export function generateToken(user) {
   return jwt.sign(

@@ -27,12 +27,12 @@ function initializeDatabase() {
     )
   `, () => {
     // Criar usuário admin de teste se não existir
-    db.get('SELECT * FROM users WHERE email = ?', ['admin@test.com'], (err, row) => {
+    db.get('SELECT * FROM users WHERE email = ?', ['admin@edu.com'], (err, row) => {
       if (!row) {
-        const hashedPassword = bcrypt.hashSync('admin123', 10);
+        const hashedPassword = bcrypt.hashSync('admin1234', 10);
         db.run(
           'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-          ['Admin Teste', 'admin@test.com', hashedPassword],
+          ['Admin Teste', 'admin@edu.com', hashedPassword],
           () => {
             console.log('Usuário admin criado para teste ✅');
           }

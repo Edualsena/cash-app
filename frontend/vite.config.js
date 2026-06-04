@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/',
         changeOrigin: true
       }
     }

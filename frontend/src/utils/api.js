@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/api';
 
 const api = axios.create({
   baseURL: API_BASE,

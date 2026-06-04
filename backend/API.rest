@@ -1,7 +1,7 @@
 // Este arquivo contém exemplos de requisições HTTP para testar a API
 
 // 1. REGISTRAR NOVO USUÁRIO
-POST http://localhost:5000/api/auth/register
+POST https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/api/auth/register
 Content-Type: application/json
 
 {

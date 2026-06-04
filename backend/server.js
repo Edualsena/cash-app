@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: ['https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/'],
   credentials: true
 }));
 
@@ -40,8 +40,8 @@ app.get('/', (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT} ✅`);
-  console.log(`http://localhost:${PORT}`);
+  console.log(`https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/`);
+  console.log(`https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/`);
 });
 
 // Graceful shutdown
