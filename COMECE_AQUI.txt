@@ -1,0 +1,157 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                    🚀 COMECE AQUI - CONTROLE DE CAIXA                         ║
+║                                                                                ║
+║         Uma aplicação web completa para gerenciar suas entradas e saídas      ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+📌 PASSO 1: ABRA DOIS TERMINAIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Você precisará de 2 terminais rodando simultaneamente.
+
+
+📌 PASSO 2: NO PRIMEIRO TERMINAL - INICIE O BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+$ cd cash-app/backend
+$ npm run dev
+
+Você deve ver:
+
+    > cash-app-backend@1.0.0 dev
+    > nodemon server.js
+    
+    [nodemon] starting `node server.js`
+    Servidor rodando na porta 5000 ✅
+
+Se der erro de porta em uso:
+$ lsof -ti:5000 | xargs kill -9
+
+
+📌 PASSO 3: NO SEGUNDO TERMINAL - INICIE O FRONTEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+$ cd cash-app/frontend
+$ npm run dev
+
+Você deve ver:
+
+    > cash-app-frontend@1.0.0 dev
+    > vite
+    
+    ➜  Local:   http://localhost:5173/
+    ➜  Press h to show help
+
+Se der erro de porta em uso:
+$ lsof -ti:5173 | xargs kill -9
+
+
+📌 PASSO 4: ABRA O NAVEGADOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Acesse:  http://localhost:5173
+
+
+📌 PASSO 5: TESTE A APLICAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Clique em "Criar conta"
+2. Preencha:
+   - Nome: Seu Nome
+   - Email: seu@email.com
+   - Senha: senha123
+
+3. Clique em "Registrar"
+
+4. Agora faça login com o email e senha
+
+5. Clique em "⚙️ Gerenciar Categorias"
+
+6. Crie algumas categorias:
+   ✏️ Nome: Aluguel       | Tipo: Saída
+   ✏️ Nome: Internet      | Tipo: Saída
+   ✏️ Nome: Venda         | Tipo: Entrada
+
+7. Feche o modal de categorias
+
+8. Preencha o formulário:
+   - Categoria: Aluguel
+   - Valor: 1500.00
+   - Descrição: Aluguel do mês
+
+9. Clique em "Adicionar Transação"
+
+10. Veja o dashboard atualizar com o valor!
+
+
+📊 VOCÊ DEVE VER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Header azul marinho com seu nome
+✅ 3 cards mostrando:
+   • Entradas: R$ 0.00 (ou mais se adicionou)
+   • Saídas: R$ 1500.00
+   • Saldo: -R$ 1500.00
+
+✅ Tabela com a transação que você criou
+
+✅ Ao adicionar uma entrada, o saldo se atualiza
+
+
+🎨 CORES DA APLICAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Header e Botões:  Azul Marinho (#003366)
+Fundo:            Branco (#ffffff)
+Entradas:         Verde (#28a745)
+Saídas:           Vermelho (#dc3545)
+
+
+📱 RESPONSIVIDADE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A aplicação se adapta automaticamente:
+📱 Smartphone  → Botões e tabela em coluna única
+📱 Tablet      → Layout responsivo
+💻 Desktop     → Layout completo
+
+
+❓ DÚVIDAS OU PROBLEMAS?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Leia os arquivos:
+
+📖 SETUP.md        → Troubleshooting detalhado
+📖 README.md       → Documentação técnica completa
+📖 INDEX.md        → Visão geral do projeto
+📖 ARQUIVOS.md     → Lista de todos os arquivos criados
+
+
+🔄 REINICIAR A APLICAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Aperte Ctrl+C em ambos os terminais
+2. Repita os passos 2 e 3 acima
+
+
+🔄 RESETAR BANCO DE DADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Se quiser começar do zero:
+
+$ rm backend/database.sqlite
+
+Isso apaga todos os dados. Na próxima execução um novo banco será criado.
+
+
+🎉 PRONTO!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sua aplicação está rodando! Aproveite! 💰
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Desenvolvido com ❤️ para simplificar seu controle de caixa

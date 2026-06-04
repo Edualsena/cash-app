@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Caixa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #003366;
+      --white: #ffffff;
+      --light-gray: #f5f5f5;
+      --dark-text: #333333;
+      --success: #28a745;
+      --danger: #dc3545;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--white);
+      color: var(--dark-text);
+    }
+
+    header {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 20px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .user-section {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #002147;
+    }
+
+    button.danger {
+      background-color: var(--danger);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background-color: var(--white);
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .card .value {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--dark-text);
+    }
+
+    .card.entrada .value {
+      color: var(--success);
+    }
+
+    .card.saida .value {
+      color: var(--danger);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: var(--white);
+    }
+
+    table thead {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table tbody tr:hover {
+      background-color: var(--light-gray);
+    }
+
+    .form-section {
+      background-color: var(--white);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border: 2px solid var(--primary);
+    }
+
+    .form-section h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    main {
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+
+    .alert.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      table th, table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>💰 Controle de Caixa</h1>
+      <div class="user-section" id="userSection" class="hidden">
+        <span id="userName">Bem-vindo!</span>
+        <button onclick="logout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Login/Registro -->
+    <div id="loginSection">
+      <div class="form-section" style="max-width: 400px; margin: 50px auto;">
+        <h2>Acesso</h2>
+        <div id="loginAlert" class="alert hidden"></div>
+
+        <div id="loginForm">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="seu@email.com">
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="loginPassword" placeholder="sua senha">
+          </div>
+          <button onclick="login()" style="width: 100%; margin-bottom: 10px;">Entrar</button>
+          <button onclick="toggleForm()" style="width: 100%; background-color: #6c757d;">Criar Conta</button>
+        </div>
+
+        <div id="registerForm" class="hidden">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="registerName" placeholder="seu nome">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="registerEmail" placeholder="seu@email.com">
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="registerPassword" placeholder="sua senha">
+          </div>
+          <button onclick="register()" style="width: 100%; margin-bottom: 10px;">Registrar</button>
+          <button onclick="toggleForm()" style="width: 100%; background-color: #6c757d;">Voltar ao Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardSection" class="hidden">
+      <div style="margin-bottom: 20px;">
+        <label>Data:</label>
+        <input type="date" id="selectedDate" onchange="loadTransactions()">
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="card entrada">
+          <h3>Entradas</h3>
+          <div class="value" id="totalEntrada">R$ 0.00</div>
+        </div>
+        <div class="card saida">
+          <h3>Saídas</h3>
+          <div class="value" id="totalSaida">R$ 0.00</div>
+        </div>
+        <div class="card">
+          <h3>Saldo</h3>
+          <div class="value" id="totalSaldo">R$ 0.00</div>
+        </div>
+      </div>
+
+      <!-- Formulário de Transação -->
+      <div class="form-section">
+        <h2>➕ Registrar Transação</h2>
+        <div id="transactionAlert" class="alert hidden"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="transactionType" onchange="updateCategories()">
+              <option value="saida">Saída</option>
+              <option value="entrada">Entrada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="categorySelect">
+              <option value="">Selecione uma categoria</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="transactionValue" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="transactionDate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descrição (opcional)</label>
+          <input type="text" id="transactionDescription" placeholder="ex: Venda de produtos...">
+        </div>
+
+        <button onclick="addTransaction()" style="width: 100%;">Adicionar Transação</button>
+      </div>
+
+      <!-- Gerenciar Categorias -->
+      <div class="form-section">
+        <h2>⚙️ Gerenciar Categorias</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nova Categoria</label>
+            <input type="text" id="newCategoryName" placeholder="ex: Aluguel">
+          </div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="newCategoryType">
+              <option value="saida">Saída</option>
+              <option value="entrada">Entrada</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="addCategory()" style="margin-bottom: 20px;">Adicionar Categoria</button>
+
+        <h3 style="color: var(--primary); margin-top: 20px; margin-bottom: 10px;">Categorias Existentes</h3>
+        <div id="categoriesList"></div>
+      </div>
+
+      <!-- Tabela de Transações -->
+      <div>
+        <h2 style="color: var(--primary); margin-bottom: 20px;">📊 Transações do Dia</h2>
+        <table id="transactionsTable">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th>Descrição</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody">
+          </tbody>
+        </table>
+        <p id="noTransactions" style="text-align: center; padding: 40px 20px; color: #666;">Nenhuma transação registrada para esta data.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Dados simulados em localStorage
+    let currentUser = null;
+    let categories = [];
+    let transactions = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('currentUser');
+      if (user) {
+        currentUser = JSON.parse(user);
+        showDashboard();
+      } else {
+        showLogin();
+      }
+
+      // Inicializar data
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('selectedDate').value = today;
+      document.getElementById('transactionDate').value = today;
+    });
+
+    function showLogin() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('dashboardSection').classList.add('hidden');
+      document.getElementById('userSection').classList.add('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      document.getElementById('userSection').classList.remove('hidden');
+      document.getElementById('userName').textContent = `Bem-vindo, ${currentUser.name}!`;
+
+      loadCategories();
+      loadTransactions();
+    }
+
+    function toggleForm() {
+      document.getElementById('loginForm').classList.toggle('hidden');
+      document.getElementById('registerForm').classList.toggle('hidden');
+    }
+
+    function register() {
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+
+      if (!name || !email || !password) {
+        showAlert('loginAlert', 'Nome, email e senha são obrigatórios', 'error');
+        return;
+      }
+
+      localStorage.setItem(email, JSON.stringify({ name, email, password }));
+      showAlert('loginAlert', 'Conta criada! Faça login agora.', 'success');
+
+      document.getElementById('registerName').value = '';
+      document.getElementById('registerEmail').value = '';
+      document.getElementById('registerPassword').value = '';
+
+      setTimeout(() => toggleForm(), 1000);
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const user = localStorage.getItem(email);
+      if (!user) {
+        showAlert('loginAlert', 'Usuário não encontrado', 'error');
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      if (userData.password !== password) {
+        showAlert('loginAlert', 'Senha incorreta', 'error');
+        return;
+      }
+
+      currentUser = userData;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+      // Carregar dados do usuário
+      const key = `user_${email}`;
+      const userData2 = localStorage.getItem(key);
+      if (userData2) {
+        const data = JSON.parse(userData2);
+        categories = data.categories || [];
+        transactions = data.transactions || [];
+      }
+
+      showDashboard();
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      currentUser = null;
+      categories = [];
+      transactions = [];
+      showLogin();
+    }
+
+    function loadCategories() {
+      const key = `user_${currentUser.email}`;
+      const data = localStorage.getItem(key);
+      if (data) {
+        const parsed = JSON.parse(data);
+        categories = parsed.categories || [];
+      } else {
+        categories = [];
+      }
+      updateCategories();
+      renderCategories();
+    }
+
+    function loadTransactions() {
+      const key = `user_${currentUser.email}`;
+      const data = localStorage.getItem(key);
+      if (data) {
+        const parsed = JSON.parse(data);
+        transactions = parsed.transactions || [];
+      } else {
+        transactions = [];
+      }
+      renderTransactions();
+      calculateTotals();
+    }
+
+    function updateCategories() {
+      const type = document.getElementById('transactionType').value;
+      const select = document.getElementById('categorySelect');
+      select.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+      categories
+        .filter(c => c.type === type)
+        .forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.id;
+          option.textContent = c.name;
+          select.appendChild(option);
+        });
+    }
+
+    function addCategory() {
+      const name = document.getElementById('newCategoryName').value;
+      const type = document.getElementById('newCategoryType').value;
+
+      if (!name.trim()) {
+        alert('Nome da categoria é obrigatório');
+        return;
+      }
+
+      const id = Date.now();
+      categories.push({ id, name, type });
+      saveData();
+
+      document.getElementById('newCategoryName').value = '';
+      updateCategories();
+      renderCategories();
+    }
+
+    function deleteCategory(id) {
+      if (confirm('Deseja deletar esta categoria?')) {
+        categories = categories.filter(c => c.id !== id);
+        saveData();
+        updateCategories();
+        renderCategories();
+      }
+    }
+
+    function renderCategories() {
+      const saidaList = categories.filter(c => c.type === 'saida');
+      const entradaList = categories.filter(c => c.type === 'entrada');
+
+      let html = '<h4 style="color: var(--primary); margin-top: 10px;">Saídas</h4>';
+      saidaList.forEach(c => {
+        html += `<div style="padding: 8px; background: #f5f5f5; margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between;">
+          <span>${c.name}</span>
+          <button onclick="deleteCategory(${c.id})" class="danger" style="padding: 4px 8px; font-size: 12px;">✕</button>
+        </div>`;
+      });
+
+      html += '<h4 style="color: var(--primary); margin-top: 15px; margin-bottom: 10px;">Entradas</h4>';
+      entradaList.forEach(c => {
+        html += `<div style="padding: 8px; background: #f5f5f5; margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between;">
+          <span>${c.name}</span>
+          <button onclick="deleteCategory(${c.id})" class="danger" style="padding: 4px 8px; font-size: 12px;">✕</button>
+        </div>`;
+      });
+
+      document.getElementById('categoriesList').innerHTML = html || 'Nenhuma categoria';
+    }
+
+    function addTransaction() {
+      const categoryId = document.getElementById('categorySelect').value;
+      const value = document.getElementById('transactionValue').value;
+      const date = document.getElementById('transactionDate').value;
+      const description = document.getElementById('transactionDescription').value;
+
+      if (!categoryId || !value) {
+        showAlert('transactionAlert', 'Categoria e valor são obrigatórios', 'error');
+        return;
+      }
+
+      const category = categories.find(c => c.id == categoryId);
+      const transaction = {
+        id: Date.now(),
+        categoryId,
+        categoryName: category.name,
+        type: category.type,
+        value: parseFloat(value),
+        date,
+        description,
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      transactions.push(transaction);
+      saveData();
+
+      document.getElementById('categorySelect').value = '';
+      document.getElementById('transactionValue').value = '';
+      document.getElementById('transactionDescription').value = '';
+
+      showAlert('transactionAlert', 'Transação adicionada!', 'success');
+      renderTransactions();
+      calculateTotals();
+    }
+
+    function deleteTransaction(id) {
+      if (confirm('Deseja deletar esta transação?')) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveData();
+        renderTransactions();
+        calculateTotals();
+      }
+    }
+
+    function renderTransactions() {
+      const selectedDate = document.getElementById('selectedDate').value;
+      const dayTransactions = transactions.filter(t => t.date === selectedDate);
+
+      const tbody = document.getElementById('transactionsBody');
+      tbody.innerHTML = '';
+
+      if (dayTransactions.length === 0) {
+        document.getElementById('noTransactions').classList.remove('hidden');
+        document.getElementById('transactionsTable').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('noTransactions').classList.add('hidden');
+      document.getElementById('transactionsTable').classList.remove('hidden');
+
+      dayTransactions.forEach(t => {
+        const row = `<tr>
+          <td>${t.time}</td>
+          <td>${t.categoryName}</td>
+          <td><span style="color: ${t.type === 'entrada' ? '#28a745' : '#dc3545'}; font-weight: bold;">${t.type === 'entrada' ? '↓ Entrada' : '↑ Saída'}</span></td>
+          <td style="color: ${t.type === 'entrada' ? '#28a745' : '#dc3545'}; font-weight: bold;">R$ ${t.value.toFixed(2)}</td>
+          <td>${t.description || '-'}</td>
+          <td><button onclick="deleteTransaction(${t.id})" style="background: none; color: #dc3545; border: none; cursor: pointer; font-size: 18px;">🗑️</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function calculateTotals() {
+      const selectedDate = document.getElementById('selectedDate').value;
+      const dayTransactions = transactions.filter(t => t.date === selectedDate);
+
+      const entrada = dayTransactions
+        .filter(t => t.type === 'entrada')
+        .reduce((sum, t) => sum + t.value, 0);
+
+      const saida = dayTransactions
+        .filter(t => t.type === 'saida')
+        .reduce((sum, t) => sum + t.value, 0);
+
+      const saldo = entrada - saida;
+
+      document.getElementById('totalEntrada').textContent = `R$ ${entrada.toFixed(2)}`;
+      document.getElementById('totalSaida').textContent = `R$ ${saida.toFixed(2)}`;
+      document.getElementById('totalSaldo').textContent = `R$ ${saldo.toFixed(2)}`;
+      document.getElementById('totalSaldo').style.color = saldo >= 0 ? '#28a745' : '#dc3545';
+    }
+
+    function saveData() {
+      const key = `user_${currentUser.email}`;
+      localStorage.setItem(key, JSON.stringify({ categories, transactions }));
+    }
+
+    function showAlert(elementId, message, type) {
+      const alert = document.getElementById(elementId);
+      alert.textContent = message;
+      alert.className = `alert ${type}`;
+      alert.classList.remove('hidden');
+
+      setTimeout(() => alert.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>
