@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
@@ -5,27 +6,35 @@ import categoryRoutes from './routes/categories.js';
 import transactionRoutes from './routes/transactions.js';
 import db from './config/database.js';
 
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(express.json());
 app.use(cors({
-  origin: ['https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  },
   credentials: true
 }));
 
-// Rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Servidor rodando ✅' });
 });
 
-// Rota raiz
 app.get('/', (req, res) => {
   res.json({
     message: 'Cash App API v1.0',
@@ -38,15 +47,16 @@ app.get('/', (req, res) => {
   });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/`);
-  console.log(`https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/`);
-});
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('Encerrando servidor...');
-  db.close();
-  process.exit(0);
-});
+  process.on('SIGINT', () => {
+    console.log('Encerrando servidor...');
+    db.close();
+    process.exit(0);
+  });
+}
+
+export default app;

@@ -2,21 +2,35 @@ import { useState, useEffect } from 'react';
 import './index.css';
 import LoginForm from './components/LoginForm';
 import Dashboard from './components/Dashboard';
+import { authAPI } from './utils/api';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem('usuario');
-    if (usuarioSalvo) {
-      try {
-        setUsuario(JSON.parse(usuarioSalvo));
-      } catch (e) {
-        console.error('Erro ao parsear usuário:', e);
+    const validarSessao = async () => {
+      const token = localStorage.getItem('token');
+      const usuarioSalvo = localStorage.getItem('usuario');
+
+      if (!token || !usuarioSalvo) {
+        setLoading(false);
+        return;
       }
-    }
-    setLoading(false);
+
+      try {
+        const response = await authAPI.me();
+        setUsuario(response.data.user);
+        localStorage.setItem('usuario', JSON.stringify(response.data.user));
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    validarSessao();
   }, []);
 
   const handleLoginSuccess = () => {

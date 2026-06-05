@@ -12,7 +12,11 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const updated = { ...formData, [name]: value };
+    if (name === 'type') {
+      updated.code = '';
+    }
+    setFormData(updated);
   };
 
   const handleSubmit = async (e) => {
@@ -47,11 +51,18 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
       try {
         await categoriesAPI.delete(id);
         onCategoriaAdicionada();
-      } catch (erro) {
+      } catch {
         alert('Erro ao deletar categoria');
       }
     }
   };
+
+  const codigosUsados = categorias
+    .filter(c => c.type === formData.type)
+    .map(c => c.code);
+
+  const codigosDisponiveis = Array.from({ length: 100 }, (_, i) => 9500 + i)
+    .filter(code => !codigosUsados.includes(code));
 
   const categoriasSaida = categorias.filter(c => c.type === 'saída');
   const categoriasEntrada = categorias.filter(c => c.type === 'entrada');
@@ -76,18 +87,6 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
           </div>
 
           <div className="form-group">
-            <label>Código (9500-9599)</label>
-            <select name="code" value={formData.code} onChange={handleChange} required>
-              <option value="">Selecione um código</option>
-              {Array.from({ length: 100 }, (_, i) => 9500 + i).map(code => (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
             <label>Tipo</label>
             <select name="type" value={formData.type} onChange={handleChange}>
               <option value="saída">Saída</option>
@@ -95,7 +94,27 @@ export default function CategoryManager({ categorias, onClose, onCategoriaAdicio
             </select>
           </div>
 
-          <button type="submit" disabled={loading} style={styles.submitBtn}>
+          <div className="form-group">
+            <label>Código (9500-9599)</label>
+            <select name="code" value={formData.code} onChange={handleChange} required>
+              <option value="">
+                {codigosDisponiveis.length === 0
+                  ? 'Nenhum código disponível para este tipo'
+                  : 'Selecione um código'}
+              </option>
+              {codigosDisponiveis.map(code => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || codigosDisponiveis.length === 0}
+            style={styles.submitBtn}
+          >
             {loading ? 'Adicionando...' : 'Adicionar Categoria'}
           </button>
         </form>

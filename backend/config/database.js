@@ -1,10 +1,17 @@
 import sqlite3 from 'sqlite3';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import bcrypt from 'bcryptjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dbPath = `${__dirname}/../data/cash-app.db`;
+const dataDir = join(__dirname, '../data');
+
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true });
+}
+
+const dbPath = join(dataDir, 'cash-app.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -15,8 +22,40 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+function migrateCategoriesTable() {
+  db.get(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='categories'",
+    (err, row) => {
+      if (err || !row) return;
+
+      if (row.sql.includes('UNIQUE(user_id, code, type)')) return;
+
+      db.serialize(() => {
+        db.run(`
+          CREATE TABLE IF NOT EXISTS categories_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            code INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(user_id, code, type)
+          )
+        `);
+        db.run('INSERT INTO categories_new SELECT * FROM categories');
+        db.run('DROP TABLE categories');
+        db.run('ALTER TABLE categories_new RENAME TO categories', (migrateErr) => {
+          if (!migrateErr) {
+            console.log('Migração de categorias concluída ✅');
+          }
+        });
+      });
+    }
+  );
+}
+
 function initializeDatabase() {
-  // Tabela de usuários
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,7 +65,6 @@ function initializeDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, () => {
-    // Criar usuário admin de teste se não existir
     db.get('SELECT * FROM users WHERE email = ?', ['admin@edu.com'], (err, row) => {
       if (!row) {
         const hashedPassword = bcrypt.hashSync('admin1234', 10);
@@ -41,7 +79,6 @@ function initializeDatabase() {
     });
   });
 
-  // Tabela de categorias
   db.run(`
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,11 +88,12 @@ function initializeDatabase() {
       type TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      UNIQUE(user_id, code)
+      UNIQUE(user_id, code, type)
     )
-  `);
+  `, () => {
+    migrateCategoriesTable();
+  });
 
-  // Tabela de transações
   db.run(`
     CREATE TABLE IF NOT EXISTS transactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

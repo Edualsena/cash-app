@@ -14,7 +14,7 @@ export const Category = {
         function(err) {
           if (err) {
             if (err.message.includes('UNIQUE')) {
-              reject(new Error('Este código já existe para este usuário'));
+              reject(new Error('Este código já existe para este tipo de categoria'));
             } else {
               reject(err);
             }
@@ -64,7 +64,7 @@ export const Category = {
         (err) => {
           if (err) {
             if (err.message.includes('UNIQUE')) {
-              reject(new Error('Este código já existe para este usuário'));
+              reject(new Error('Este código já existe para este tipo de categoria'));
             } else {
               reject(err);
             }

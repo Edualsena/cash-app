@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'https://cash-hss6j5sa2-eduardo-sena-s-projects.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -17,11 +17,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isAuthRoute = error.config?.url?.includes('/auth/');
+    if (error.response?.status === 401 && !isAuthRoute) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authAPI = {
   register: (name, email, password) =>
     api.post('/auth/register', { name, email, password }),
   login: (email, password) =>
-    api.post('/auth/login', { email, password })
+    api.post('/auth/login', { email, password }),
+  me: () => api.get('/auth/me')
 };
 
 export const categoriesAPI = {

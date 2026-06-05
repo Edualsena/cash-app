@@ -19,10 +19,13 @@ router.post('/', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Tipo deve ser "entrada" ou "saída"' });
     }
 
-    // Validar se categoria pertence ao usuário
     const category = await Category.getById(category_id, req.userId);
     if (!category) {
       return res.status(404).json({ error: 'Categoria não encontrada' });
+    }
+
+    if (category.type !== type) {
+      return res.status(400).json({ error: 'A categoria não corresponde ao tipo da transação' });
     }
 
     // Validar amount

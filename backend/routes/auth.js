@@ -1,8 +1,28 @@
 import express from 'express';
 import { User } from '../models/User.js';
-import { generateToken } from '../middleware/auth.js';
+import { generateToken, verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Verificar sessão do usuário logado
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao verificar sessão:', error);
+    res.status(500).json({ error: 'Erro ao verificar sessão' });
+  }
+});
 
 // Registrar novo usuário
 router.post('/register', async (req, res) => {

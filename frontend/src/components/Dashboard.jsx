@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { transactionsAPI, categoriesAPI } from '../utils/api';
+import { gerarPdfDiario } from '../utils/generatePdf';
 import TransactionForm from './TransactionForm';
 import TransactionTable from './TransactionTable';
 import CategoryManager from './CategoryManager';
@@ -67,6 +68,15 @@ export default function Dashboard({ usuario, onLogout }) {
 
   totals.saldo = totals.entrada - totals.saida;
 
+  const handleExportarPdf = () => {
+    gerarPdfDiario({
+      usuario,
+      data: dataSelecionada,
+      transacoes,
+      totais: totals
+    });
+  };
+
   return (
     <div>
       <header style={styles.header}>
@@ -112,6 +122,9 @@ export default function Dashboard({ usuario, onLogout }) {
         <div style={styles.buttonGroup}>
           <button onClick={() => setShowCategoryManager(true)} style={styles.btn}>
             ⚙️ Gerenciar Categorias
+          </button>
+          <button onClick={handleExportarPdf} style={styles.btnPdf}>
+            📄 Exportar PDF do Dia
           </button>
         </div>
 
@@ -190,6 +203,14 @@ const styles = {
   },
   btn: {
     backgroundColor: '#003366',
+    color: '#ffffff',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  btnPdf: {
+    backgroundColor: '#28a745',
     color: '#ffffff',
     border: 'none',
     padding: '10px 20px',

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { authAPI } from '../utils/api';
 
-export default function LoginForm({ onSuccess, onToggleForm }) {
+export default function LoginForm({ onSuccess }) {
+  const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
-    email: 'admin@edu.com',
-    password: 'admin1234'
+    name: '',
+    email: '',
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,37 +15,57 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await authAPI.login(formData.email, formData.password);
+      const response = isRegister
+        ? await authAPI.register(formData.name, formData.email, formData.password)
+        : await authAPI.login(formData.email, formData.password);
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('usuario', JSON.stringify(response.data.user));
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao fazer login');
+      setError(err.response?.data?.error || (isRegister ? 'Erro ao criar conta' : 'Erro ao fazer login'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsRegister(!isRegister);
+    setError('');
+    setFormData({ name: '', email: '', password: '' });
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>💰 Controle de Caixa</h1>
+        <p style={styles.subtitle}>
+          {isRegister ? 'Crie sua conta para começar' : 'Acesse sua conta'}
+        </p>
 
         {error && <div style={styles.error}>{error}</div>}
 
-        {/* <div style={styles.testInfo}>
-          <strong>🧪 Credenciais de Teste:</strong>
-          <p>Email: <code>admin@test.com</code></p>
-          <p>Senha: <code>admin123</code></p>
-        </div> */}
+        <form onSubmit={handleSubmit}>
+          {isRegister && (
+            <div className="form-group">
+              <label>Nome</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Seu nome completo"
+                required
+              />
+            </div>
+          )}
 
-        <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -51,6 +73,7 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="seu@email.com"
               required
             />
           </div>
@@ -62,14 +85,20 @@ export default function LoginForm({ onSuccess, onToggleForm }) {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder={isRegister ? 'Mínimo 6 caracteres' : 'Sua senha'}
               required
+              minLength={isRegister ? 6 : undefined}
             />
           </div>
 
           <button type="submit" disabled={loading} style={styles.submitBtn}>
-            {loading ? 'Carregando...' : 'Entrar'}
+            {loading ? 'Carregando...' : (isRegister ? 'Criar Conta' : 'Entrar')}
           </button>
         </form>
+
+        <button type="button" onClick={toggleMode} style={styles.toggleBtn}>
+          {isRegister ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta'}
+        </button>
       </div>
     </div>
   );
@@ -94,8 +123,14 @@ const styles = {
   title: {
     color: '#003366',
     textAlign: 'center',
-    marginBottom: '30px',
+    marginBottom: '8px',
     fontSize: '28px'
+  },
+  subtitle: {
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: '30px',
+    fontSize: '14px'
   },
   error: {
     backgroundColor: '#f8d7da',
@@ -104,15 +139,6 @@ const styles = {
     borderRadius: '4px',
     marginBottom: '20px',
     border: '1px solid #f5c6cb'
-  },
-  testInfo: {
-    backgroundColor: '#e3f2fd',
-    color: '#1976d2',
-    padding: '15px',
-    borderRadius: '4px',
-    marginBottom: '20px',
-    border: '1px solid #90caf9',
-    fontSize: '13px'
   },
   submitBtn: {
     width: '100%',
